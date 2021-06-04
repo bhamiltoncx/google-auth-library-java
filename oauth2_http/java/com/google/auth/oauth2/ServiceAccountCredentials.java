@@ -97,6 +97,10 @@ public class ServiceAccountCredentials extends GoogleCredentials
   private static final int TWELVE_HOURS_IN_SECONDS = 43200;
   private static final int DEFAULT_LIFETIME_IN_SECONDS = 3600;
 
+  // Allow 30 seconds for skew as per
+  // https://cloud.google.com/iap/docs/signed-headers-howto#verifying_the_jwt_payload .
+  private static final long CLOCK_SKEW_TIME_IN_SECONDS = 30;
+
   private final String clientId;
   private final String clientEmail;
   private final PrivateKey privateKey;
@@ -870,6 +874,18 @@ public class ServiceAccountCredentials extends GoogleCredentials
         && Objects.equals(this.lifetime, other.lifetime);
   }
 
+  private static long currentTimeMillisToIssuedAtTimeSeconds(long currentTimeMillis) {
+    // The `iat` claim must be in the past, and the `exp` claim must be no more than `this.lifetime`
+    // seconds in the future.
+    //
+    // Allow for up to 30 seconds of clock skew between this system and the receiving system, as per
+    // RFC 7519 and Google Cloud recommendations:
+    //
+    // https://cloud.google.com/iap/docs/signed-headers-howto#verifying_the_jwt_payload
+    // https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4
+    return currentTimeMillis / 1000 - CLOCK_SKEW_TIME_IN_SECONDS;
+  }
+
   String createAssertion(JsonFactory jsonFactory, long currentTime, String audience)
       throws IOException {
     JsonWebSignature.Header header = new JsonWebSignature.Header();
@@ -879,8 +895,9 @@ public class ServiceAccountCredentials extends GoogleCredentials
 
     JsonWebToken.Payload payload = new JsonWebToken.Payload();
     payload.setIssuer(getIssuer());
-    payload.setIssuedAtTimeSeconds(currentTime / 1000);
-    payload.setExpirationTimeSeconds(currentTime / 1000 + this.lifetime);
+    long issuedAtTimeSeconds = currentTimeMillisToIssuedAtTimeSeconds(currentTime);
+    payload.setIssuedAtTimeSeconds(issuedAtTimeSeconds);
+    payload.setExpirationTimeSeconds(issuedAtTimeSeconds + this.lifetime);
     payload.setSubject(serviceAccountUser);
     if (scopes.isEmpty()) {
       payload.put("scope", Joiner.on(' ').join(defaultScopes));
@@ -915,8 +932,9 @@ public class ServiceAccountCredentials extends GoogleCredentials
 
     JsonWebToken.Payload payload = new JsonWebToken.Payload();
     payload.setIssuer(getIssuer());
-    payload.setIssuedAtTimeSeconds(currentTime / 1000);
-    payload.setExpirationTimeSeconds(currentTime / 1000 + this.lifetime);
+    long issuedAtTimeSeconds = currentTimeMillisToIssuedAtTimeSeconds(currentTime);
+    payload.setIssuedAtTimeSeconds(issuedAtTimeSeconds);
+    payload.setExpirationTimeSeconds(issuedAtTimeSeconds + this.lifetime);
     payload.setSubject(serviceAccountUser);
 
     if (audience == null) {

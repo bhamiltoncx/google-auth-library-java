@@ -250,8 +250,8 @@ public class ServiceAccountCredentialsTest extends BaseSerializationTest {
     JsonWebToken.Payload payload = signature.getPayload();
     assertEquals(CLIENT_EMAIL, payload.getIssuer());
     assertEquals(OAuth2Utils.TOKEN_SERVER_URI.toString(), payload.getAudience());
-    assertEquals(currentTimeMillis / 1000, (long) payload.getIssuedAtTimeSeconds());
-    assertEquals(currentTimeMillis / 1000 + 3600, (long) payload.getExpirationTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30, (long) payload.getIssuedAtTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30 + 3600, (long) payload.getExpirationTimeSeconds());
     assertEquals(USER, payload.getSubject());
     assertEquals(Joiner.on(' ').join(scopes), payload.get("scope"));
   }
@@ -280,8 +280,8 @@ public class ServiceAccountCredentialsTest extends BaseSerializationTest {
     JsonWebToken.Payload payload = signature.getPayload();
     assertEquals(CLIENT_EMAIL, payload.getIssuer());
     assertEquals(OAuth2Utils.TOKEN_SERVER_URI.toString(), payload.getAudience());
-    assertEquals(currentTimeMillis / 1000, (long) payload.getIssuedAtTimeSeconds());
-    assertEquals(currentTimeMillis / 1000 + 3600, (long) payload.getExpirationTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30, (long) payload.getIssuedAtTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30 + 3600, (long) payload.getExpirationTimeSeconds());
     assertEquals(USER, payload.getSubject());
     assertEquals(Joiner.on(' ').join(scopes), payload.get("scope"));
   }
@@ -296,7 +296,7 @@ public class ServiceAccountCredentialsTest extends BaseSerializationTest {
 
     JsonWebSignature signature = JsonWebSignature.parse(jsonFactory, assertion);
     JsonWebToken.Payload payload = signature.getPayload();
-    assertEquals(currentTimeMillis / 1000 + 4000, (long) payload.getExpirationTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30 + 4000, (long) payload.getExpirationTimeSeconds());
   }
 
   @Test
@@ -323,8 +323,8 @@ public class ServiceAccountCredentialsTest extends BaseSerializationTest {
     JsonWebToken.Payload payload = signature.getPayload();
     assertEquals(CLIENT_EMAIL, payload.getIssuer());
     assertEquals("https://foo.com/bar", (String) (payload.getUnknownKeys().get("target_audience")));
-    assertEquals(currentTimeMillis / 1000, (long) payload.getIssuedAtTimeSeconds());
-    assertEquals(currentTimeMillis / 1000 + 3600, (long) payload.getExpirationTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30, (long) payload.getIssuedAtTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30 + 3600, (long) payload.getExpirationTimeSeconds());
     assertEquals(USER, payload.getSubject());
   }
 
@@ -341,7 +341,7 @@ public class ServiceAccountCredentialsTest extends BaseSerializationTest {
 
     JsonWebSignature signature = JsonWebSignature.parse(jsonFactory, assertion);
     JsonWebToken.Payload payload = signature.getPayload();
-    assertEquals(currentTimeMillis / 1000 + 4000, (long) payload.getExpirationTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30 + 4000, (long) payload.getExpirationTimeSeconds());
   }
 
   @Test
@@ -369,8 +369,8 @@ public class ServiceAccountCredentialsTest extends BaseSerializationTest {
     assertEquals(CLIENT_EMAIL, payload.getIssuer());
     assertNotEquals(
         "https://bar.com/foo", (String) (payload.getUnknownKeys().get("target_audience")));
-    assertEquals(currentTimeMillis / 1000, (long) payload.getIssuedAtTimeSeconds());
-    assertEquals(currentTimeMillis / 1000 + 3600, (long) payload.getExpirationTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30, (long) payload.getIssuedAtTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30 + 3600, (long) payload.getExpirationTimeSeconds());
     assertEquals(USER, payload.getSubject());
   }
 
@@ -398,8 +398,8 @@ public class ServiceAccountCredentialsTest extends BaseSerializationTest {
     JsonWebToken.Payload payload = signature.getPayload();
     assertEquals(CLIENT_EMAIL, payload.getIssuer());
     assertEquals("https://foo.com/bar", payload.getAudience());
-    assertEquals(currentTimeMillis / 1000, (long) payload.getIssuedAtTimeSeconds());
-    assertEquals(currentTimeMillis / 1000 + 3600, (long) payload.getExpirationTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30, (long) payload.getIssuedAtTimeSeconds());
+    assertEquals(currentTimeMillis / 1000 - 30 + 3600, (long) payload.getExpirationTimeSeconds());
     assertEquals(USER, payload.getSubject());
     assertEquals(Joiner.on(' ').join(scopes), payload.get("scope"));
   }
